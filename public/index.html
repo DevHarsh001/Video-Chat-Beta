@@ -2,16 +2,20 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Start Video Call</title>
-  <link rel="stylesheet" href="style.css">
+  <title>Start Call</title>
+  <link rel="stylesheet" href="/style.css" />
 </head>
 <body>
-  <h1>Simple Video Call</h1>
-  <button id="startCall">Start Call</button>
+  <h1>Simple Calling App</h1>
+  <button id="startVideo">Start Video Call</button>
+  <button id="startAudio">Start Voice Call</button>
 
   <script>
-    document.getElementById("startCall").onclick = () => {
-      window.location.href = "/start";
+    document.getElementById("startVideo").onclick = () => {
+      window.location.href = "/start?type=video";
+    };
+    document.getElementById("startAudio").onclick = () => {
+      window.location.href = "/start?type=audio";
     };
   </script>
 </body>

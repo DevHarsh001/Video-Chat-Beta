@@ -4,182 +4,291 @@
   <meta charset="UTF-8" />
   <title>Video Call Room</title>
   <style>
-    /* style.css - Discord-style dark theme */
-
-:root {
-    --bg-color: #18191c;
-    --primary-color: #5865f2;
-    --text-color: #dcddde;
-    --text-muted: #72767d;
-    --border-color: #2f3136;
-    --button-bg: #5865f2;
-    --button-hover-bg: #4752c4;
-    --button-text: #fff;
-    --shadow-color: rgba(0, 0, 0, 0.6);
-  }
-  
-  * {
-    box-sizing: border-box;
-    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-  }
-  
-  body {
-    margin: 0;
-    background-color: var(--bg-color);
-    color: var(--text-color);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    min-height: 100vh;
-    padding: 20px;
-  }
-  
-  h1, h2 {
-    font-weight: 600;
-    margin-bottom: 20px;
-  }
-  
-  button {
-    background-color: var(--button-bg);
-    border: none;
-    border-radius: 4px;
-    color: var(--button-text);
-    padding: 12px 24px;
-    font-size: 16px;
-    cursor: pointer;
-    box-shadow: 0 2px 5px var(--shadow-color);
-    transition: background-color 0.3s ease;
-    user-select: none;
-  }
-  
-  button:hover {
-    background-color: var(--button-hover-bg);
-  }
-  
-  button:active {
-    background-color: #3647a6;
-  }
-  
-  video {
-    border-radius: 8px;
-    box-shadow: 0 0 10px var(--primary-color);
-    background-color: #000;
-    width: 45vw;
-    max-width: 480px;
-    height: auto;
-    margin: 10px;
-    object-fit: cover;
-    border: 2px solid var(--border-color);
-  }
-  
-  #localVideo {
-    filter: drop-shadow(0 0 6px #43b581);
-  }
-  
-  #remoteVideo {
-    filter: drop-shadow(0 0 6px #faa61a);
-  }
-  
-  #videos {
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
-    width: 100%;
-    max-width: 1024px;
-    margin-top: 10px;
-  }
-  
-  a.call-link {
-    margin-top: 10px;
-    display: inline-block;
-    color: var(--primary-color);
-    text-decoration: none;
-    font-weight: 600;
-    word-break: break-all;
-  }
-  
-  a.call-link:hover {
-    text-decoration: underline;
-  }
-  
-  /* Responsive */
-  
-  @media (max-width: 768px) {
-    video {
-      width: 90vw;
-      max-width: 100%;
-      margin: 8px 0;
+    /* Reset */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: "Segoe UI", sans-serif;
     }
-  }
-  
+
+    body {
+      background-color: #111b21;
+      color: #e9edef;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem;
+      min-height: 100vh;
+    }
+
+    /* Headings */
+    h1, h2 {
+      color: #25d366;
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+
+    /* Buttons */
+    button {
+      background-color: #202c33;
+      color: #e9edef;
+      border: 2px solid #2a3942;
+      padding: 0.75rem 1.5rem;
+      margin: 0.5rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+
+    button:hover {
+      background-color: #2a3942;
+      transform: scale(1.03);
+    }
+
+    button:active {
+      transform: scale(0.98);
+    }
+
+    /* Video Containers */
+    #videos {
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      gap: 1rem;
+      margin: 1.5rem 0;
+      flex-wrap: wrap;
+    }
+
+    video {
+      width: 320px;
+      height: 180px;
+      border-radius: 12px;
+      background-color: #000;
+      object-fit: cover;
+      animation: fadeIn 0.5s ease-in-out;
+    }
+
+    /* Controls */
+    #controls {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    /* Animation */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Responsive for mobile */
+    @media (max-width: 600px) {
+      #videos {
+        flex-direction: column;
+        align-items: center;
+      }
+
+      video {
+        width: 90vw;
+        height: 50vw;
+      }
+
+      button {
+        width: 80%;
+        font-size: 1rem;
+      }
+    }
   </style>
 </head>
 <body>
-  <h2>Video Call Room</h2>
-  <video id="localVideo" autoplay muted></video>
-  <video id="remoteVideo" autoplay></video>
+  <h2>Call Room</h2>
+
+  <div id="videos">
+    <video id="localVideo" autoplay muted></video>
+    <video id="remoteVideo" autoplay></video>
+  </div>
+
+  <div id="controls">
+    <button id="toggleCamera">Toggle Camera</button>
+    <button id="toggleMic">Toggle Mic</button>
+    <button id="shareScreen">Share Screen</button>
+  </div>
 
   <script src="/socket.io/socket.io.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/simple-peer@9/simplepeer.min.js"></script>
   <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const isAudioOnly = urlParams.get("type") === "audio";
+    
     const socket = io();
     const roomId = window.location.pathname.split("/").pop();
     const userId = Math.floor(Math.random() * 1000000).toString();
-
+    
     const localVideo = document.getElementById("localVideo");
     const remoteVideo = document.getElementById("remoteVideo");
-
+    const toggleCameraBtn = document.getElementById("toggleCamera");
+    const toggleMicBtn = document.getElementById("toggleMic");
+    const shareScreenBtn = document.getElementById("shareScreen");
+    
+    let localStream;
     let peer;
-
-    navigator.mediaDevices.getUserMedia({ video: true, audio: true })
-      .then((stream) => {
-        localVideo.srcObject = stream;
-
-        socket.emit("join-room", roomId, userId);
-
-        socket.on("user-connected", (otherUserId) => {
-          // Initiator creates the peer connection
-          if (!peer) {
-            startPeer(true, stream, otherUserId);
-          }
-        });
-
-        socket.on("signal", (data) => {
-          if (!peer) {
-            startPeer(false, stream, data.userId);
-          }
-          peer.signal(data.signal);
-        });
-
-        socket.on("user-disconnected", (id) => {
-          if (peer && id === peer._remoteUserId) {
-            peer.destroy();
-            peer = null;
-            remoteVideo.srcObject = null;
-            alert("User disconnected");
-          }
-        });
+    let videoTrack;
+    let audioTrack;
+    
+    // Helper to update button text based on track enabled state
+    function updateToggleButtons() {
+      if (videoTrack) {
+        toggleCameraBtn.innerText = videoTrack.enabled ? "Turn Off Camera" : "Turn On Camera";
+      }
+      if (audioTrack) {
+        toggleMicBtn.innerText = audioTrack.enabled ? "Mute Mic" : "Unmute Mic";
+      }
+    }
+    
+    async function getMedia() {
+      try {
+        const constraints = {
+          video: !isAudioOnly,
+          audio: true,
+        };
+        return await navigator.mediaDevices.getUserMedia(constraints);
+      } catch (err) {
+        alert("Could not get media: " + err.message);
+        throw err;
+      }
+    }
+    
+    async function start() {
+      localStream = await getMedia();
+    
+      // Setup local video or hide it in audio-only
+      if (isAudioOnly) {
+        localVideo.remove();
+        toggleCameraBtn.style.display = "none";
+      } else {
+        localVideo.srcObject = localStream;
+      }
+    
+      videoTrack = localStream.getVideoTracks()[0];
+      audioTrack = localStream.getAudioTracks()[0];
+    
+      updateToggleButtons();
+    
+      socket.emit("join-room", roomId, userId);
+    
+      socket.on("user-connected", (otherUserId) => {
+        if (!peer) startPeer(true, otherUserId);
       });
-
-    function startPeer(initiator, stream, otherUserId) {
-      peer = new SimplePeer({ initiator, trickle: false, stream });
-
-      peer._remoteUserId = otherUserId;
-
+    
+      socket.on("signal", (data) => {
+        if (!peer) startPeer(false, data.userId);
+        peer.signal(data.signal);
+      });
+    
+      socket.on("user-disconnected", (id) => {
+        if (peer && id === peer.remoteUserId) {
+          peer.destroy();
+          peer = null;
+          remoteVideo.srcObject = null;
+        }
+      });
+    }
+    
+    function startPeer(initiator, otherUserId) {
+      peer = new SimplePeer({
+        initiator,
+        trickle: false,
+        stream: localStream,
+      });
+    
+      peer.remoteUserId = otherUserId;
+    
       peer.on("signal", (signalData) => {
         socket.emit("signal", { userId, signal: signalData, target: otherUserId });
       });
-
+    
       peer.on("stream", (remoteStream) => {
         remoteVideo.srcObject = remoteStream;
       });
-
-      peer.on("error", (err) => console.error(err));
+    
+      peer.on("error", (err) => console.error("Peer error:", err));
       peer.on("close", () => {
         remoteVideo.srcObject = null;
         peer = null;
       });
     }
+    
+    toggleCameraBtn.onclick = () => {
+      if (videoTrack) {
+        videoTrack.enabled = !videoTrack.enabled;
+        updateToggleButtons();
+      }
+    };
+    
+    toggleMicBtn.onclick = () => {
+      if (audioTrack) {
+        audioTrack.enabled = !audioTrack.enabled;
+        updateToggleButtons();
+      }
+    };
+    
+    shareScreenBtn.onclick = async () => {
+      if (!peer) {
+        alert("You must be connected to share screen.");
+        return;
+      }
+      try {
+        const screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true });
+        const screenTrack = screenStream.getVideoTracks()[0];
+    
+        // Replace the video track sender with screen track
+        const sender = peer._pc.getSenders().find((s) => s.track && s.track.kind === "video");
+    
+        if (sender) {
+          await sender.replaceTrack(screenTrack);
+        }
+    
+        // Update local video preview to screen share
+        if (!isAudioOnly) {
+          localVideo.srcObject = screenStream;
+        }
+    
+        screenTrack.onended = async () => {
+          // When screen sharing ends, switch back to webcam
+          if (!isAudioOnly && videoTrack) {
+            if (sender) {
+              await sender.replaceTrack(videoTrack);
+            }
+            localVideo.srcObject = localStream;
+          }
+        };
+      } catch (err) {
+        if (err.name !== "AbortError") {
+          alert("Screen sharing failed: " + err.message);
+        }
+      }
+    };
+    function toggleFullscreen(element) {
+  if (!document.fullscreenElement) {
+    element.requestFullscreen().catch(err => {
+      console.error(`Fullscreen error: ${err.message}`);
+    });
+  } else {
+    document.exitFullscreen();
+  }
+}
+
+localVideo.addEventListener('dblclick', () => toggleFullscreen(localVideo));
+remoteVideo.addEventListener('dblclick', () => toggleFullscreen(remoteVideo));
+
+    
+    // Start everything
+    start();    
   </script>
 </body>
 </html>

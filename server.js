@@ -12,7 +12,8 @@ app.use(express.static("public"));
 // Generate a unique room id and redirect
 app.get("/start", (req, res) => {
   const roomId = uuidv4();
-  res.redirect(`/room/${roomId}`);
+  const type = req.query.type === "audio" ? "audio" : "video";
+  res.redirect(`/room/${roomId}?type=${type}`);
 });
 
 // Serve room page
@@ -35,5 +36,5 @@ io.on("connection", (socket) => {
   });
 });
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3200;
 server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
